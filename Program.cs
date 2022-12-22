@@ -7,13 +7,13 @@ using System.Net;
 DepartmentContext context = new DepartmentContext();
 //CreateNewDepartment();
 //AddToDepartment();
-//CreateLectureAndAddingToDepartment();
+//CreateLectureAndAddingToDepartment(5);
 //CreateStudentAddingDepartmentAndLectures();
 //UpdateStudentDepartment();
 
-//ShowDepartmentStudents();
+//ShowDepartmentStudents(6);
 //ShowDepartmentLectures();
-ShowLecturesByStudent();
+//ShowLecturesByStudent();
 
 
 void CreateNewDepartment()
@@ -36,10 +36,10 @@ void UpdateStudentDepartment()
     student.DepartmentId = 5;
     context.SaveChanges();
 }
-void ShowDepartmentStudents()
+void ShowDepartmentStudents(int depId)
 {
-    Console.WriteLine("Students of department 6:");
-    var students = context.Students.Where(s => s.DepartmentId == 6).Select(sa => sa.FullName);
+    Console.WriteLine($"Students of department {depId}:");
+    var students = context.Students.Where(s => s.DepartmentId == depId).Select(sa => sa.FullName);
     foreach (var item in students)
     {
         Console.WriteLine(item);
@@ -56,7 +56,7 @@ void ShowDepartmentLectures()
 {
     Console.WriteLine("Lectures of department 6:");
 
-    var result = context.Departments.Include(d => d.Lectures).Where(d => d.Id == 6).FirstOrDefault();
+    var result = context.Departments.Include(d => d.Lectures).Single(d => d.Id == 6);
     var lectures = result.Lectures;
     foreach (var item in lectures)
     {
@@ -68,7 +68,11 @@ void ShowLecturesByStudent()
 {
     Console.WriteLine("Lectures of Student id 8:");
     var studentDep = context.Students.Where(x => x.Id == 8).Select(x => x.DepartmentId).FirstOrDefault();
-    var result = context.Departments.Include(d => d.Lectures).Include(d=>d.Students).Where(x=>x.Id==studentDep).FirstOrDefault();
+    var result = context.Departments
+        .Include(d => d.Lectures)
+        .Include(d => d.Students)
+        .Where(x => x.Id == studentDep)
+        .FirstOrDefault();
    
     var lectures = result.Lectures;
     foreach (var item in lectures)
@@ -90,10 +94,10 @@ void AddToDepartment()
     context.Departments.Update(department);
     context.SaveChanges();
 }
-void CreateLectureAndAddingToDepartment()
+void CreateLectureAndAddingToDepartment(int depId)
 {
     var lecture = new Lecture {Name="English"};
-    var dep = context.Departments.Where(d => d.Id == 5).Include(x => x.Lectures).First();
+    var dep = context.Departments.Where(d => d.Id == depId).Include(x => x.Lectures).First();
     dep.Lectures.Add(lecture);
     context.Departments.Update(dep);
     context.SaveChanges();
